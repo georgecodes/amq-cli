@@ -1,0 +1,34 @@
+#!/bin/sh
+
+M2_REPO=~/.m2/repository
+MAVEN_COORDS=com/elevenware/engineering/amq-cli/1.0-SNAPSHOT
+JAR_FILE=amq-cli-1.0-SNAPSHOT-jar-with-dependencies.jar
+ENTRY_POINT=com.elevenware.engineering.AmqCli
+CLASSPATH="$M2_REPO/$MAVEN_COORDS/$JAR_FILE"
+BROKER_URI=tcp://localhost:61616
+MESSAGE="This is a test message"
+QUEUE="Q"
+
+function send() {
+	if [ -e $FILE_PATH ] ; then
+		FILE_ARG="-Dfile=$FILE_PATH"
+		TEXT_ARG=""
+	else
+		FILE_ARG=""
+		TEXT_ARG="-Dmessage=$MESSAGE"
+	fi
+	
+	java -cp $CLASSPATH -DbrokerUri=$BROKER_URI -DqName=$QUEUE $FILE_ARG $TEXT_ARG -Daction=send $ENTRY_POINT
+}
+
+while getopts :b:t:q:f: OPT
+ do case "$OPT" in
+   b) BROKER_URI="$OPTARG";;
+   t) MESSAGE="$OPTARG";;
+   q) QUEUE="$OPTARG";;
+   f) FILE_PATH="$OPTARG";;
+   ?) help;;
+   esac
+done
+
+send

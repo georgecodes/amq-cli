@@ -1,0 +1,26 @@
+#!/bin/sh
+
+M2_REPO=~/.m2/repository
+MAVEN_COORDS=com/elevenware/engineering/amq-cli/1.0-SNAPSHOT
+JAR_FILE=amq-cli-1.0-SNAPSHOT-jar-with-dependencies.jar
+ENTRY_POINT=com.elevenware.engineering.AmqCli
+CLASSPATH="$M2_REPO/$MAVEN_COORDS/$JAR_FILE"
+BROKER_URI=tcp://localhost:61616
+QUEUE="Q"
+TIMEOUT=30000
+
+function receive() {
+	
+	java -cp $CLASSPATH -DbrokerUri=$BROKER_URI -DqName=$QUEUE -Dtimeout=$TIMEOUT -Daction=receive $ENTRY_POINT
+}
+
+while getopts :b:t:q: OPT
+ do case "$OPT" in
+   b) BROKER_URI="$OPTARG";;
+   t) TIMEOUT="$OPTARG";;
+   q) QUEUE="$OPTARG";;
+   ?) help;;
+   esac
+done
+
+receive
